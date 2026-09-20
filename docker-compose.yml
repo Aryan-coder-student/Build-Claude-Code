@@ -10,16 +10,18 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DEMO_SALES_ANTHROPIC_WORKSPACE_ID=${ANTHROPIC_WORKSPACE_ID:-}
-      - DEMO_SALES_PUBLIC_URL=http://localhost:8000
+      - DEMO_SALES_PUBLIC_URL=${PUBLIC_BACKEND_URL:-http://localhost:8000}
     volumes: ["backend-data:/data"]
     depends_on: [demo-product]
   demo-product:
     build: ./demo-product
     ports: ["3000:3000"]
+    environment:
+      - VITE_WIDGET_URL=${PUBLIC_BACKEND_URL:-http://localhost:8000}
   frontend:
     build: ./frontend
     ports: ["3001:3001"]
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=${PUBLIC_BACKEND_URL:-http://localhost:8000}
 volumes:
   backend-data:

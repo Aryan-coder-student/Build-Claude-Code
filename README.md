@@ -30,6 +30,18 @@ composes chat answers strictly from retrieved knowledge. Without a key everythin
 From the dashboard, each product has an **Open product with assistant** button and a bookmarklet that injects
 the assistant into any page of a product that does not have the snippet installed yet.
 
+## Share it publicly (tunnels)
+
+```bash
+scripts/tunnel.sh          # Cloudflare quick tunnels for backend, demo SaaS and dashboard; prints three https URLs
+scripts/tunnel.sh down     # stop tunnels and switch the stack back to localhost
+```
+
+The script tunnels the backend first, rewires the widget snippet, the dashboard API URL and the chat iframe origin
+to that public URL (`PUBLIC_BACKEND_URL` in `.env`), then tunnels the demo product and dashboard. Quick-tunnel URLs
+change on every start; `cloudflared` needs no account. (ngrok works the same way if you prefer it: set
+`PUBLIC_BACKEND_URL` to your ngrok backend URL and recreate the stack.)
+
 ## Run it (local dev)
 
 ```bash
