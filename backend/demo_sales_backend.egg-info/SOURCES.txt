@@ -1,0 +1,6 @@
+pyproject.toml
+demo_sales_backend.egg-info/PKG-INFO
+demo_sales_backend.egg-info/SOURCES.txt
+demo_sales_backend.egg-info/dependency_links.txt
+demo_sales_backend.egg-info/requires.txt
+demo_sales_backend.egg-info/top_level.txt

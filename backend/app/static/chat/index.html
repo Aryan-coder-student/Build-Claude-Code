@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Assistant</title>
+  <link rel="stylesheet" href="/widget/static/chat.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div>
+        <div class="title" id="title">Product Assistant</div>
+        <div class="subtitle" id="subtitle">Ask me anything about this product.</div>
+      </div>
+      <button class="icon-btn" id="close" aria-label="Close">✕</button>
+    </header>
+    <main class="messages" id="messages"></main>
+    <section class="demo hidden" id="demo">
+      <div class="demo-row">
+        <div>
+          <div class="demo-title">Showing: <span id="demo-title"></span></div>
+          <div class="demo-step" id="demo-step">Step 1 / 4</div>
+        </div>
+        <button class="stop" id="demo-stop">Stop Demo</button>
+      </div>
+      <div class="demo-message" id="demo-message">Starting…</div>
+      <div class="progress"><div class="bar" id="demo-bar"></div></div>
+    </section>
+    <div class="suggestions" id="suggestions"></div>
+    <form class="composer" id="composer">
+      <input id="input" type="text" placeholder="Ask anything…" autocomplete="off" />
+      <button type="submit" id="send">Send</button>
+    </form>
+  </div>
+  <script src="/widget/static/chat.js"></script>
+</body>
+</html>

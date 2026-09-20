@@ -1,0 +1,25 @@
+# One command demo: docker compose up --build
+# Demo SaaS: http://localhost:3000   Dashboard: http://localhost:3001   Backend/API: http://localhost:8000
+services:
+  backend:
+    build: ./backend
+    # Host networking (Linux): the crawler inside the container sees your machine's localhost, so any local
+    # product (http://localhost:3010, the demo product on :3000, ...) can be crawled without URL rewrites or
+    # dev-server host allow-lists. The API is served on host port 8000 directly.
+    network_mode: host
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - DEMO_SALES_ANTHROPIC_WORKSPACE_ID=${ANTHROPIC_WORKSPACE_ID:-}
+      - DEMO_SALES_PUBLIC_URL=http://localhost:8000
+    volumes: ["backend-data:/data"]
+    depends_on: [demo-product]
+  demo-product:
+    build: ./demo-product
+    ports: ["3000:3000"]
+  frontend:
+    build: ./frontend
+    ports: ["3001:3001"]
+    environment:
+      - VITE_API_URL=http://localhost:8000
+volumes:
+  backend-data:

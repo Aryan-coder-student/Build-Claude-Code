@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Interactive Product Demo Sales Agent — Hackathon Pitch</title>
+<style>
+  :root {
+    --bg: #0b1020; --panel: #121a30; --line: #24304f; --text: #e6eaf5; --muted: #9aa5c4;
+    --accent: #6366f1; --accent2: #22d3ee; --ok: #34d399; --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 18px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+  #deck { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .slide { position: absolute; width: 1280px; height: 720px; padding: 56px 72px 64px; display: none;
+    flex-direction: column; background: radial-gradient(1200px 600px at 80% -10%, rgba(99,102,241,.18), transparent 60%), var(--bg);
+    transform-origin: center; }
+  .slide.active { display: flex; }
+  .kicker { color: var(--accent2); text-transform: uppercase; letter-spacing: .14em; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  h1 { font-size: 54px; line-height: 1.1; margin: 0 0 18px; letter-spacing: -.02em; }
+  h2 { font-size: 40px; line-height: 1.15; margin: 0 0 22px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); font-size: 24px; margin: 0 0 28px; }
+  ul { margin: 0; padding-left: 24px; font-size: 22px; }
+  li { margin: 9px 0; }
+  li::marker { color: var(--accent); }
+  ol { margin: 0; padding-left: 28px; font-size: 20px; }
+  ol li { margin: 6px 0; }
+  em { color: var(--accent2); font-style: normal; }
+  code, pre { font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace; }
+  code { background: var(--panel); border: 1px solid var(--line); padding: 1px 7px; border-radius: 6px; font-size: .9em; }
+  pre { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; font-size: 15px; line-height: 1.35; margin: 0; color: #cfd6ee; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; }
+  .card h3 { margin: 0 0 8px; font-size: 18px; color: var(--accent2); }
+  .card p, .card ul { font-size: 18px; margin: 0; color: var(--text); }
+  .stages { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+  .stage { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-family: ui-monospace, monospace; }
+  .stage.ready { border-color: var(--ok); color: var(--ok); }
+  .arrow { color: var(--muted); font-size: 16px; }
+  .flow { display: flex; gap: 12px; align-items: stretch; margin-top: 16px; }
+  .flow .box { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 16px; }
+  .flow .box b { display: block; color: var(--accent2); margin-bottom: 6px; font-size: 15px; }
+  .flow .conn { align-self: center; color: var(--muted); font-size: 22px; }
+  table { border-collapse: collapse; width: 100%; font-size: 19px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: .08em; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; }
+  th.num { text-align: right; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; background: rgba(99,102,241,.18); color: #c7d2fe; border: 1px solid rgba(99,102,241,.4); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 6px; }
+  .action { font-family: ui-monospace, monospace; font-size: 15px; padding: 6px 12px; border-radius: 8px; background: rgba(34,211,238,.1); border: 1px solid rgba(34,211,238,.35); color: #a5f3fc; }
+  .foot { position: absolute; left: 72px; right: 72px; bottom: 22px; display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; }
+  .title-slide { justify-content: center; }
+  .title-slide .snippet { margin-top: 26px; font-size: 18px; }
+  .center { text-align: center; align-items: center; justify-content: center; }
+  .small { font-size: 16px; color: var(--muted); }
+  #counter { position: fixed; right: 24px; bottom: 16px; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; z-index: 5; }
+  #hint { position: fixed; left: 24px; bottom: 16px; color: var(--muted); font-size: 13px; z-index: 5; }
+  #bar { position: fixed; left: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0; transition: width .25s; z-index: 5; }
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="deck">
+
+<!-- 1 -->
+<section class="slide title-slide">
+  <div class="kicker">Hackathon pitch</div>
+  <h1>AI Interactive Product<br>Demo Sales Agent</h1>
+  <p class="sub">An AI sales engineer that <em>shows</em>, not tells.</p>
+  <ul>
+    <li>One <code>&lt;script&gt;</code> tag → your product gets an assistant that answers, navigates, and demos live</li>
+    <li>FastAPI · Playwright · Claude · vanilla-JS widget · Vite/React dashboard</li>
+    <li>Whole stack in one command: <code>docker compose up --build</code></li>
+  </ul>
+  <pre class="snippet">&lt;script src="https://your-backend/widget.js" data-product-id="prod_demo_saas"&gt;&lt;/script&gt;</pre>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <div class="kicker">The problem</div>
+  <h2>Visitors can't find features. Docs tell, they don't show.<br>Sales engineers don't scale.</h2>
+  <ul>
+    <li>Trials are lost because people can't <em>find</em> or <em>understand</em> a feature, not because it's missing</li>
+    <li>Static docs and FAQ bots answer in text; the visitor still has to go hunting for the button</li>
+    <li>A human sales engineer can drive the product live, but there's one of them and thousands of visitors</li>
+    <li>Product-tour tools need hand-authored steps for every feature and go stale with every release</li>
+  </ul>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <div class="kicker">The insight</div>
+  <h2>Turn the product itself into the knowledge base, then let the assistant drive it.</h2>
+  <ul>
+    <li>A running product already encodes its features: routes, navigation, buttons, forms</li>
+    <li>Crawl it like a user would (click things, see what appears) → <em>structured</em> knowledge, not scraped text</li>
+    <li>Give the chatbot hands: a small set of typed, safe actions it can perform in the host page</li>
+    <li>Result: an assistant that says "Sure — watch the screen" and then does it</li>
+  </ul>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <div class="kicker">What we built</div>
+  <h2>One script tag → learns the product → chats, navigates, demos</h2>
+  <div class="cols">
+    <ul>
+      <li>Register a product URL; the worker crawls it and reports stage progress until READY</li>
+      <li>Tenant-isolated knowledge base: pages → features (route, nav path, selectors) → navigation graph → Q&amp;A → demo flows</li>
+      <li>Embedded chatbot answers grounded questions from that knowledge</li>
+    </ul>
+    <ul>
+      <li><em>"Take me to analytics"</em> → in-app navigation, chat stays open</li>
+      <li><em>"Show me how to create a report"</em> → step-by-step demo that highlights, clicks, and types in the live UI</li>
+      <li>Dashboard to watch indexing and browse features, Q&amp;A, demo flows</li>
+    </ul>
+  </div>
+  <p class="small" style="margin-top:22px">Sample app "Lumen" indexes in ~12 s without an LLM key: 7 pages · 9 features · 26 Q&amp;A · 9 demo flows. Zero hand-authored steps.</p>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <div class="kicker">Live demo</div>
+  <h2>The 8-step story</h2>
+  <div class="cols">
+    <ol>
+      <li>Dashboard → register <b>Demo SaaS</b> (<code>prod_demo_saas</code>)</li>
+      <li>Watch stages: discovering pages → features → navigation → Q&amp;A → demos → READY</li>
+      <li>Browse Features (route, nav path, selectors, steps), Knowledge, Demo flows</li>
+      <li>Open the Demo SaaS, click the chat bubble</li>
+    </ol>
+    <ol start="5">
+      <li><em>"What analytics features do you have?"</em> → grounded answer</li>
+      <li><em>"Take me to analytics."</em> → SPA navigation, chat intact</li>
+      <li><em>"Show me how to create a report."</em> → Reports opens, <b>New Report</b> highlighted, explained, clicked; form fields highlighted and filled; live status panel</li>
+      <li><em>"Can I also share reports?"</em> → conversation continues; reload keeps history</li>
+    </ol>
+  </div>
+  <p class="small" style="margin-top:20px">This exact flow passes in a real browser (Playwright-driven test): 9 typed steps in the report demo. Demos also resume after a full page load.</p>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <div class="kicker">How it works</div>
+  <h2>Architecture</h2>
+<pre>
+ Host product page (customer's SaaS)                Backend (FastAPI :8000)
+ ┌─────────────────────────────────────┐            ┌──────────────────────────────────────┐
+ │ &lt;script src=widget.js&gt;              │            │ routers/  products · widget · demo    │
+ │  ├ floating launcher                │    REST    │ agent/    intent → knowledge → reply  │
+ │  ├ host bridge (typed actions only) │◀──────────▶│ worker/   pipeline (thread pool)      │
+ │  └ iframe: chat app ◀─ postMessage ─┘            │ repo.py   tenant-scoped SQL           │
+ └─────────────────────────────────────┘            │ SQLite · Playwright (Chromium)        │
+                                                    │ llm.py    Claude, optional            │
+ Dashboard (Vite + React :3001) ─── REST + X-Tenant-Id ──▶ └──────────────────────────────────────┘
+</pre>
+  <div class="stages">
+    <span class="stage">DISCOVERING_PAGES</span><span class="arrow">→</span>
+    <span class="stage">EXTRACTING_FEATURES</span><span class="arrow">→</span>
+    <span class="stage">BUILDING_NAVIGATION</span><span class="arrow">→</span>
+    <span class="stage">GENERATING_QA</span><span class="arrow">→</span>
+    <span class="stage">GENERATING_DEMOS</span><span class="arrow">→</span>
+    <span class="stage">INDEXING_KNOWLEDGE</span><span class="arrow">→</span>
+    <span class="stage ready">READY</span>
+  </div>
+  <p class="small" style="margin-top:14px">Three processes. Backend also serves <code>widget.js</code> and the chat iframe (same origin). No queues, no vector DB: thread pool + SQLite (PostgreSQL-compatible schema) + token-overlap retrieval over structured knowledge.</p>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <div class="kicker">Discovery</div>
+  <h2>Crawl like a user, then structure what you saw</h2>
+  <div class="flow">
+    <div class="box"><b>1 · Crawl</b>Playwright BFS, same origin, ≤25 pages. Optional login step. Per page: title, headings, text, links, buttons, inputs — each with a stable selector.</div>
+    <div class="conn">→</div>
+    <div class="box"><b>2 · Click-discover</b>Click each labelled action button from a fresh load; record revealed form inputs or the page it navigates to. Never clicks delete / logout / pay.</div>
+    <div class="conn">→</div>
+    <div class="box"><b>3 · Extract</b>One <i>page</i> feature per page, one <i>action</i> feature per meaningful interaction; nav paths from sidebar labels; site-wide controls deduplicated.</div>
+    <div class="conn">→</div>
+    <div class="box"><b>4 · Generate</b>Q&amp;A per feature, a demo flow per feature (navigate → highlight → click → type → explain), knowledge chunks.</div>
+  </div>
+  <ul style="margin-top:20px; font-size:19px">
+    <li>Selector fallback: <code>data-testid</code> → <code>#id</code> → <code>[name]</code> → <code>[aria-label]</code> → <code>a[href]</code> → shortest unique <code>nth-of-type</code> path; framework-generated volatile ids are skipped</li>
+    <li><em>Claude enrichment:</em> feature descriptions, product description, and the whole Q&amp;A set — from the discovered structure only, never invented. Templates are the no-key fallback</li>
+  </ul>
+</section>
+
+<!-- 8 -->
+<section class="slide">
+  <div class="kicker">Demo execution</div>
+  <h2>A pull loop of typed actions, one step at a time</h2>
+<pre>
+ chat reply {demo_run}  →  iframe: POST /api/demo/runs/{id}/advance {result}
+                        ←  {action, message, step_index, total_steps}
+ iframe ──postMessage──▶ host bridge executes action ──postMessage──▶ {ok | error}
+ iframe advances with the result … until done, FAILED, or Stop
+</pre>
+  <div class="actions">
+    <span class="action">navigate</span><span class="action">click</span><span class="action">highlight</span><span class="action">scroll</span>
+    <span class="action">type</span><span class="action">wait</span><span class="action">explain</span>
+  </div>
+  <ul style="font-size:19px">
+    <li>Navigation requests are one-step runs on the same code path</li>
+    <li>Graceful failure: selector not found after ~3 s → run marked FAILED, chat says <em>"I couldn't find the New Report button on this screen…"</em></li>
+    <li>SPA navigation via <code>pushState</code> + <code>popstate</code>; if the router didn't react, fall back to a full load</li>
+    <li>Run saved in <code>localStorage</code> before each navigate; the re-injected widget resumes it after a full reload if it landed on the expected path</li>
+    <li>Status panel with step counter, progress bar and Stop; typing uses the native value setter so React-controlled inputs update</li>
+  </ul>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+  <div class="kicker">Safety &amp; multi-tenancy</div>
+  <h2>The LLM never emits code. Tenants never see each other.</h2>
+  <div class="cols">
+    <div class="card"><h3>Safety</h3><ul>
+      <li>Claude returns text or schema-validated JSON only; never actions, selectors, or scripts</li>
+      <li>Bridge accepts exactly seven typed actions with CSS selectors; unknown types rejected; cross-origin navigation refused</li>
+      <li>Chat runs in an iframe; bridge ↔ iframe messages are origin-checked both ways</li>
+      <li>Crawler skips destructive controls and ignores its own injected widget</li>
+    </ul></div>
+    <div class="card"><h3>Multi-tenancy</h3><ul>
+      <li>Every product-scoped row carries <code>tenant_id</code> + <code>product_id</code></li>
+      <li>Repository functions take both and filter on both; no unscoped reads of product data</li>
+      <li>Dashboard identifies the tenant via header; the widget is keyed by <code>product_id</code> and the tenant is resolved server-side</li>
+      <li>Tenant isolation covered by tests</li>
+    </ul></div>
+  </div>
+  <p class="small" style="margin-top:20px">"You let an AI drive my app?" — No. A whitelist of DOM operations drives it; the AI only chooses among pre-generated, deterministic flows.</p>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+  <div class="kicker">Real-world proof</div>
+  <h2>Not just our sample app</h2>
+  <table>
+    <thead><tr><th>Product</th><th>Kind</th><th class="num">Pages</th><th class="num">Features</th><th class="num">Q&amp;A</th></tr></thead>
+    <tbody>
+      <tr><td>Demo SaaS "Lumen" (ours)</td><td>React SPA</td><td class="num">7</td><td class="num">9</td><td class="num">26 <span class="pill">39 with Claude</span></td></tr>
+      <tr><td>OrangeHRM demo</td><td>login-protected, multi-page</td><td class="num">25</td><td class="num">16</td><td class="num">56</td></tr>
+      <tr><td>Tabler</td><td>static multi-page site</td><td class="num">25</td><td class="num">27</td><td class="num">91</td></tr>
+      <tr><td>DentalPin (local Nuxt product)</td><td>login-protected SPA</td><td class="num">25</td><td class="num">38</td><td class="num">101</td></tr>
+    </tbody>
+  </table>
+  <ul style="margin-top:18px; font-size:19px">
+    <li>Demo SaaS: full browser test passes — question → navigation → 9-step demo → follow-up → reload keeps history</li>
+    <li>DentalPin, real browser: grounded answers, in-app navigation without reload, <em>"Show me how to create my first patient"</em> opens the dialog and fills fields. 15 of 15 action demos pass end to end; </li>
+    <li>Strict-CSP sites (OrangeHRM) use a dev extension; production integration is always the snippet or a reverse proxy</li>
+  </ul>
+</section>
+
+<!-- 11 -->
+<section class="slide">
+  <div class="kicker">Claude's role</div>
+  <h2>An enrichment layer with a deterministic floor</h2>
+  <div class="cols">
+    <div class="card"><h3>Claude does</h3><ul>
+      <li><b>Indexing:</b> feature descriptions, product description, the full Q&amp;A set — structured output validated against Pydantic schemas</li>
+      <li><b>Chat:</b> composes 1-3 sentence answers from retrieved knowledge only; says so honestly when the knowledge doesn't cover it (asked about a Salesforce integration, it declines)</li>
+    </ul></div>
+    <div class="card"><h3>Claude never does</h3><ul>
+      <li>Intent → action mapping, selectors, demo steps, or anything executed in the host page</li>
+      <li>Block the demo: without a key, templated knowledge, rule-based intents and best-match answers still run end to end</li>
+    </ul></div>
+  </div>
+  <p class="small" style="margin-top:20px">Model: <code>claude-opus-5</code>, low effort for chat answers. A wrong LLM answer can only be wrong <em>text</em>, never a wrong <em>click</em>.</p>
+</section>
+
+<!-- 12 -->
+<section class="slide">
+  <div class="kicker">What's next</div>
+  <h2>From MVP to product</h2>
+  <ul>
+    <li>Finish selector robustness for framework-generated ids (the remaining DentalPin demos)</li>
+    <li>Semantic retrieval (embeddings) on top of the structured knowledge for fuzzier questions</li>
+    <li>Richer demo flows: multi-page journeys, conditional steps, real submissions in sandboxed accounts</li>
+    <li>Chat analytics for the customer: what visitors ask, where demos fail, which features convert</li>
+    <li>Production hardening: auth, PostgreSQL, hosted widget origin, per-tenant rate limits</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section class="slide center">
+  <div class="kicker">Thanks</div>
+  <h1>One script tag.<br>An AI sales engineer that shows, not tells.</h1>
+  <p class="sub">Repo: <code>Build-Claude-Code</code> · <code>docker compose up --build</code> · follow the README demo script</p>
+  <p class="small">docs/PRD.md · docs/ARCHITECTURE.md · docs/IMPLEMENTATION_PLAN.md · docs/PROGRESS.md</p>
+</section>
+
+</div>
+<div id="hint">← → or click to advance · Home / End</div>
+<div id="counter"></div>
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = Math.min(slides.length - 1, Math.max(0, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+  var counter = document.getElementById('counter'), bar = document.getElementById('bar');
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
+    counter.textContent = (i + 1) + ' / ' + slides.length;
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    var scale = Math.min(innerWidth / 1280, innerHeight / 720);
+    slides.forEach(function (s) { s.style.transform = 'scale(' + scale + ')'; });
+  }
+  addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+  });
+  document.getElementById('deck').addEventListener('click', function (e) {
+    show(e.clientX < innerWidth * 0.25 ? i - 1 : i + 1);
+  });
+  addEventListener('resize', fit);
+  fit(); show(i);
+})();
+</script>
+</body>
+</html>
